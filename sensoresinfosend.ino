@@ -12,9 +12,9 @@
 
 
 DHT dht(DHTPIN, DHT11);
-const char* ssid = "Totalplay-2.4G-b570";          // Reemplaza con el SSID de tu red
-const char* password = "6FUuMJyGxnjQCMWD";  // Reemplaza con la contraseña de tu red
-const char* server = "104.41.25.26";  // IP pública o nombre de dominio de tu servidor
+const char* ssid = "";          // Reemplaza con el SSID de tu red
+const char* password = "";  // Reemplaza con la contraseña de tu red
+const char* server = "";  // IP pública o nombre de dominio de tu servidor
 
 int status = WL_IDLE_STATUS;
 WiFiClient client;  // Crear cliente WiFi
