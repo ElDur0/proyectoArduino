@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datos del Sensor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Datos en tiempo real del sensor</h1>
+    <p>Temperatura: <span id="temp">Esperando datos...</span></p>
+    <p>Humedad: <span id="humedad">Esperando datos...</span></p>
+    <p>Humedad de la Tierra: <span id="humedadTierra">Esperando datos...</span></p>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
