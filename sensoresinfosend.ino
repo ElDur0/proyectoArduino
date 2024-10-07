@@ -7,20 +7,20 @@
 #define DHTPIN  2        // Pin donde está conectado el sensor DHT11
 #define DHTTYPE DHT11   // Tipo de sensor DHT11
 #define sensor  A2       //Pin del sensor de tierra   
-#define mojado  210
-#define seco    510
+#define mojado  50
+#define seco    70
 
 
 DHT dht(DHTPIN, DHT11);
 const char* ssid = "";          // Reemplaza con el SSID de tu red
 const char* password = "";  // Reemplaza con la contraseña de tu red
-const char* server = "";  // IP pública o nombre de dominio de tu servidor
+const char* server = "104.41.25.26";  // IP pública o nombre de dominio de tu servidor
 
 int status = WL_IDLE_STATUS;
 WiFiClient client;  // Crear cliente WiFi
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   dht.begin();
   Serial.println("Iniciando el sensor DHT11...");
   while (!Serial) {
@@ -64,6 +64,8 @@ void loop() {
     Serial.println(" *C");
     
   }
+  Serial.print("lectura de suelo: ");
+  Serial.println(humedadSuelo);
   Serial.println(" porcentaje de humedad en la tierra");
   Serial.print(lectura);
   Serial.println("%");
