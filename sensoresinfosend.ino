@@ -6,15 +6,14 @@
 
 #define DHTPIN  2        // Pin donde está conectado el sensor DHT11
 #define DHTTYPE DHT11   // Tipo de sensor DHT11
-#define sensor  A2       //Pin del sensor de tierra   
+#define sensor  A2       // Pin del sensor de tierra   
 #define mojado  50
 #define seco    70
 
-
 DHT dht(DHTPIN, DHT11);
-const char* ssid = "";          // Reemplaza con el SSID de tu red
-const char* password = "";  // Reemplaza con la contraseña de tu red
-const char* server = "104.41.25.26";  // IP pública o nombre de dominio de tu servidor
+const char* ssid = "Redmi Note 11";          // Reemplaza con el SSID de tu red
+const char* password = "puntodeacceso";      // Reemplaza con la contraseña de tu red
+const char* server = "104.41.25.26";         // IP pública o nombre de dominio de tu servidor
 
 int status = WL_IDLE_STATUS;
 WiFiClient client;  // Crear cliente WiFi
@@ -23,8 +22,10 @@ void setup() {
   Serial.begin(9600);
   dht.begin();
   Serial.println("Iniciando el sensor DHT11...");
+  
+  // Esperar a que el puerto serie esté listo
   while (!Serial) {
-    ; // Esperar a que el puerto serie esté listo
+    ;
   }
 
   // Conectarse a la red WiFi
@@ -43,15 +44,18 @@ void setup() {
 }
 
 void loop() {
-  // Leer humedad
+  // Leer humedad ambiente
   float h = dht.readHumidity();
   // Leer temperatura en grados Celsius
   float t = dht.readTemperature();
-  //leer la lectura dle suelo;
+  // Leer humedad del suelo
   int humedadSuelo = analogRead(sensor);
-  int lectura = map(humedadSuelo, mojado, seco , 100, 0);
+  int lectura = map(humedadSuelo, mojado, seco, 100, 0);
   
-  // Comprobar si alguna lectura ha fallado
+  // Variables para alertas
+  String alertas = "";
+
+  // Validaciones de error en lectura del sensor
   if (isnan(h) || isnan(t)) {
     Serial.println("Error al leer del sensor DHT11.");
   } else {
@@ -62,21 +66,45 @@ void loop() {
     Serial.print("Temperatura: ");
     Serial.print(t);
     Serial.println(" *C");
-    
   }
-  Serial.print("lectura de suelo: ");
+
+  // Mostrar datos del suelo
+  Serial.print("Lectura de suelo: ");
   Serial.println(humedadSuelo);
-  Serial.println(" porcentaje de humedad en la tierra");
+  Serial.println("Porcentaje de humedad en la tierra");
   Serial.print(lectura);
   Serial.println("%");
 
-  if (client.connect(server, 80)) {  // Conectar al servidor en el puerto 5000
+  // Validaciones y alertas
+  if (h < 60 || h > 80) {
+    Serial.println("¡Alerta! Humedad ambiente fuera del rango ideal (60% - 80%)");
+    alertas += "\"alerta_humedad_ambiente\": \"Fuera de rango (60% - 80%)\", ";
+  }
+  if (lectura < 60 || lectura > 80) {
+    Serial.println("¡Alerta! Humedad del suelo fuera del rango ideal (60% - 80%)");
+    alertas += "\"alerta_humedad_suelo\": \"Fuera de rango (60% - 80%)\", ";
+  }
+  if (t < 18 || t > 24) {
+    Serial.println("¡Alerta! Temperatura fuera del rango ideal (18°C - 24°C)");
+    alertas += "\"alerta_temperatura\": \"Fuera de rango (18°C - 24°C)\", ";
+  }
+
+  // Enviar datos al servidor
+  if (client.connect(server, 80)) {  // Conectar al servidor en el puerto 80
     Serial.println("Conectado al servidor");
 
-    // Crear datos en formato JSON
+    // Si hay alertas, eliminar la última coma
+    if (alertas != "") {
+      alertas.remove(alertas.length() - 2);
+    } else {
+      alertas = "\"sin_alertas\": \"Todo en rango\"";
+    }
+
+    // Crear datos en formato JSON incluyendo alertas
     String jsonData = "{\"sensor_temperatura\": " + String(t, 2) + 
                       ", \"sensor_humedad\": " + String(h, 2) +
-                       ", \"sensor_humedad_tierra\":" +String(lectura) +"}";
+                      ", \"sensor_humedad_tierra\": " + String(lectura) + 
+                      ", " + alertas + "}";
 
     Serial.println(jsonData);
 
